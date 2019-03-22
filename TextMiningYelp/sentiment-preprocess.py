@@ -7,6 +7,7 @@ import csv
 import numpy as np
 import pandas as pd
 from nltk.tokenize import sent_tokenize
+from sklearn.utils import shuffle
 
 # export file names
 training_file_path = "review_by_sentences_training.csv"
@@ -16,7 +17,10 @@ evaluation_file_path = "review_by_sentences_evaluation.csv"
 
 # %%
 # Import the data file
-data = pd.read_csv("Review.csv")
+data_raw = pd.read_csv("Review.csv")
+
+#shuffle the review order
+data = shuffle(data_raw)
 
 # Select only those important columns for our project
 df1 = data[['_id', 'UserId', 'BusinessId', 'Rating', 'Text']]
@@ -27,21 +31,23 @@ print("len: ", len(df1.index))
 num_reviews = len(df1.index)
 
 # num of reviews for evaluation
-num_evaluation = 500
+num_evaluation =int(0.1*50)
 
 
 # num of reviews for training
-num_training = round((num_reviews - 500)/2)
+num_training = int(0.7*50)
 
 # num of reviews for testing
-num_testing = num_reviews-num_evaluation-num_training
+num_testing = int(0.2*50)
 
 #split df into training, testing, evaluation
 df_training = data.iloc[:num_training]
-end_testing = num_training+num_testing
-print("end: ", end_testing)
-df_testing = data.iloc[num_training:end_testing]
-df_evaluation = data.iloc[end_testing:num_reviews]
+df_testing = data.iloc[num_training:num_training+num_testing]
+df_evaluation = data.iloc[num_training+num_testing: num_training+num_testing+num_evaluation]
+
+# end_testing = num_evaluation+num_testing
+# df_testing = data.iloc[num_training:end_testing]
+# df_training = data.iloc[end_testing:num_training]
 
 
 print("df_training: ", df_training)
@@ -89,7 +95,6 @@ def write_records(data, output_file_path):
     print("num_sentences: ", num_sentences)
 
 # %%
- 
 write_records(df_training, training_file_path)
 write_records(df_testing, testing_file_path)
 write_records(df_evaluation, evaluation_file_path)
