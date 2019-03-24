@@ -9,6 +9,7 @@ import pandas as pd
 from nltk.tokenize import sent_tokenize
 from sklearn.utils import shuffle
 
+# %%
 # export file names
 training_file_path = "review_by_sentences_training.csv"
 testing_file_path = "review_by_sentences_testing.csv"
@@ -98,3 +99,37 @@ def write_records(data, output_file_path):
 write_records(df_training, training_file_path)
 write_records(df_testing, testing_file_path)
 write_records(df_evaluation, evaluation_file_path)
+
+
+#%%
+annotated_training = pd.read_excel("annotated_training.xlsx")
+annotated_testing = pd.read_excel("annotated_testing.xlsx")
+annotated_evaluation = pd.read_excel("annotated_evaluation.xlsx")
+data_raw = pd.read_csv("Review.csv")
+data_raw.head()
+# annotated_training.head()
+
+#%%
+def add_info (df_lookup, df_input, col_name, output_file):
+    df_output = df_input.copy()
+    df_output[col_name] = np.nan
+    for index, r in df_output.iterrows():
+        # print('r_lookup_id: ', df_lookup.loc[df_lookup['_id'] == r['review_id']])
+        # print("r_id: ", r['review_id'])
+        r_lookup = df_lookup.loc[df_lookup['_id'] == r['review_id']]
+        info = r_lookup[col_name]
+        # print("info: ", info, " ", type(info))
+        
+        df_output.loc[index, col_name] = int(info)
+        r[col_name] = info
+    
+    df_output.to_csv(output_file)
+    print("finished adding ", col_name, " to ", output_file)
+
+#%%
+add_info(data_raw, annotated_training, "Rating", 'annotated_training_w_rating.csv')
+add_info(data_raw, annotated_testing, "Rating", 'annotated_testing_w_rating.csv')
+add_info(data_raw, annotated_evaluation, "Rating", 'annotated_evaluation_w_rating.csv')
+
+
+
